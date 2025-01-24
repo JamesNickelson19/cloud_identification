@@ -23,13 +23,13 @@ def list_files(dir):
 
 print("Starting")
 
-outfile = open("training_features.csv", "w")
+outfile = open("../processed_data/training_features.csv", "w")
 outfile.write("subregion,moonalt,sunalt,moonphase,exp_time,srcdens,bkgmean,bkgmedian,bkgstd,cloudy\n")
 
 #############################################################################################################
 
 # getting the list of files
-files = list_files('/home2/jn22aah/Project/')
+files = list_files('../FIT_images')
 
 for file in files:
 
@@ -57,8 +57,13 @@ for file in files:
 
     # getting the filename for the png version of the image
     split_file = file.split(".")
-    split_file[2] = "png"
-    filename = ".".join(split_file)
+    split_file[-1] = "png"
+    file = ".".join(split_file)
+
+    # sending the png version to the correct folder
+    split_file = file.split("\\")
+    split_file[0] = "../png_images"
+    filename = "/".join(split_file)
 
     # creating the subregion overlay, and saving the overlayed image as a png
     overlay = image.create_overlay(overlaytype="subregions",  regions=[1,2,3,4,5,6,7,8,9])
