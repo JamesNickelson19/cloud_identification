@@ -1,1 +1,1 @@
-Unlike with the FIT_images section, I will upload all of my testing images here
+This section is where test images should be saved to. An additional folder inside of it should be made, called "pngs", as this is where the images with the subregions overlayed onto them will be saved. I have included 10 of each as an example of what this section should look like, and so that the code can be tested using the same data as me. 
