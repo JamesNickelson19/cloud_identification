@@ -1,2 +1,2 @@
-This section is where you should put all the images that you are planning to train the models on. I'm not uploading them, because theres a lot, but they can be found on the UH cluster computer at /home2/jn22aah/Project if you would like to see them. 
-Alternatively, the extracted features can be found in the processed_data folder
+This section is where you should put all the images that you are planning to train the models on. I'm not uploading them, because theres a lot, but they can be found on the UH cluster computer at /home2/jn22aah/Project if you would like to see them. Please note, to recreate my process, folders should be created under this section for each training milestone (I have 20, 40, 80, 160, 320, and 450 image folders). This just helps with getting the right amount of images in each training set.
+Alternatively, to veiwthe extracted features, they can be found in the processed_data folder
