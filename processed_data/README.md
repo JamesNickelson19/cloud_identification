@@ -1,4 +1,4 @@
-This folder contains extracted feature data from the images in FIT_images. 
+This folder contains extracted feature data from the images in FIT_images, with clouds manually marked with a 1, and clear subregions marked with a 0.
 
 test_data.csv : contains the fully processed test data
 
