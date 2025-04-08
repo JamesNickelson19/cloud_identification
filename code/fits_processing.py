@@ -110,10 +110,15 @@ class processedFIT():
 
 #############################################################################################################
 
-    def save_image(self, filename):
+    def save_image(self, filename=None):
         """
         Test to see if cropped range is correct by saving cropped image
         """
+        if filename == None:
+            split_file = self.filename.split("/")
+            split_file[-1] = "processed" + split_file[-1]
+            split_file[1] = "augmented"
+            filename = "/".join(split_file)
 
         hdu = fits.PrimaryHDU(data=self.data, header=self.header) # getting data and the header into a FIT format
 
@@ -243,6 +248,99 @@ class processedFIT():
 
         mask.close()
 
+#############################################################################################################    
+
+    def save_mask(self):
+        """Saving mask data for use with augmented images that already have the mask on them"""
+
+        mask = fits.open("../mask/mask.FIT")
+
+        self.maskdata = mask[0].data
+
+#############################################################################################################
+
+    def rotate(self):
+        """Rotate image 90, 180, and 270 degrees"""
+
+        data = self.data
+
+        # rotating the image
+        image_rotated = [np.rot90(data), np.rot90(data, 2), np.rot90(data, 3)]
+
+        # splitting the filename so that it can be saved into the correct folder, with the right name
+        split_file = self.filename.split("/")
+        split_file[1] = "augmented"
+
+        # getting each rotated version
+        n = 0
+        for image in image_rotated:
+            # setting up the hdu to save the file
+            hdu = fits.PrimaryHDU(data=image, header=self.header)
+            
+            if n == 0:
+                # getting the right filename 
+                placehold = split_file
+                placehold[-1] = "rot_90_" + split_file[-1]
+                filename = "/".join(placehold)
+
+                # saving
+                hdu.writeto(filename, overwrite=True)
+
+            # repeating for other rotated files
+            if n == 1:
+                placehold = split_file
+                placehold[-1] = "rot_180_" + split_file[-1]
+                filename = "/".join(placehold)
+
+                hdu.writeto(filename, overwrite=True)
+
+            if n == 2:
+                placehold = split_file
+                placehold[-1] = "rot_270_" + split_file[-1]
+                filename = "/".join(placehold)
+
+                hdu.writeto(filename, overwrite=True)
+
+            n+=1
+
+#############################################################################################################
+
+    def flip(self):
+        """Flip image vertically and horizontally"""
+        data = self.data
+
+        # getting flipped versions of the image
+        image_flipped = [np.flip(data, 1), np.flip(data, 0)]
+
+        # splitting the filename so that it can be saved into the correct folder, with the right name
+        split_file = self.filename.split("/")
+        split_file[1] = "augmented"
+
+        # getting each flipped version
+        n = 0
+        for image in image_flipped:
+            # setting up the hdu to save the file
+            hdu = fits.PrimaryHDU(data=image, header=self.header)
+            
+            if n == 0:
+                # getting the right filename 
+                placehold = split_file
+                placehold[-1] = "flip_vert_" + split_file[-1]
+                filename = "/".join(placehold)
+
+                # saving
+                hdu.writeto(filename, overwrite=True)
+
+            # repeating for other image
+            if n == 1:
+                placehold = split_file
+                placehold[-1] = "flip_hor_" + split_file[-1]
+                filename = "/".join(placehold)
+
+                hdu.writeto(filename, overwrite=True)
+
+            n+=1
+
 #############################################################################################################
 
     def generate_subregions(self):
@@ -313,7 +411,7 @@ class processedFIT():
 
         for subi in range(len(subregions)):
             plt.imshow(subregions[subi], origin='lower', vmin=0, vmax=1)
-            plt.savefig(f"../subregions/subregion_{subi}.png")
+            plt.savefig(f"../subregions/2_subregion_{subi}.png")
 
             plt.close()
             
@@ -622,7 +720,7 @@ class LGBM():
 #############################################################################################################
 
     def train_model(self, parameters = {'max_depth': 5,'n_estimators': 500,
-                                        'learning_rate': 0.25,'num_leaves': 30,
+                                        'learning_rate': 0.02,'num_leaves': 30,
                                         'min_child_samples': 100,'reg_alpha': 10,
                                         'reg_lambda': 100}, cv = 5):
         """
@@ -640,10 +738,17 @@ class LGBM():
         X_cv, X_val, y_cv, y_val = train_test_split(self.data_X, self.data_y, test_size=0.1, random_state=42)
 
         # define model
-        lgb = LGBMClassifier(objective='binary', random_state=42, n_jobs=-1, **parameters)
+
+        lgb = LGBMClassifier(objective="binary",random_state=42, n_jobs=-1, **parameters)
 
         # train model
-        lgb.fit(X = X_cv, y = y_cv)
+
+        try:
+            lgb.fit(X = X_cv, y = y_cv)
+        except:
+            lgb = LGBMClassifier(objective="multiclass",random_state=42, n_jobs=-1, **parameters)
+            lgb.fit(X = X_cv, y = y_cv)
+
         self.model = lgb
 
         # derive cv scores
@@ -654,65 +759,10 @@ class LGBM():
         self.test_score = np.max(cv_results['test_score'])
         self.parameters = parameters
         self.val_score = self.model.score(X_val, y_val)
-        self.f1_score_val = f1_score(y_val, self.model.predict(X_val))
+        self.f1_score_val = f1_score(y_val, self.model.predict(X_val), average="weighted")
 
-        return self.val_score
-    
-#############################################################################################################
-    
-    def train_randomised_search_cv(self, n_iter = 100, distributions = {
-                'max_depth': randint(low=3, high=47),
-                'n_estimators': randint(low=100, high=1400),
-                'learning_rate': uniform(loc=0.1, scale=0.9),
-                'feature_fraction': uniform(loc=0.1, scale=0.9),
-                'num_leaves': randint(low=3, high=97),
-                'min_child_samples': randint(low=10, high=190),
-                'reg_alpha': [1, 5, 10, 50, 100],
-                'reg_lambda': [1, 5, 10, 50, 100, 500, 1000]}, 
-                cv = 3 , scoring = "accuracy"):
-        """
-        Train the model with a random cross-validation search. taken from cloudynight
+        return self.f1_score_val
 
-        PARAMETERS
-        -----------
-        n_iter : int
-        number of iterations, default of 100
-
-        distributions : dict
-        distributions to use, default value taken from cloudynight
-
-        cv : int
-        cross validation, default value of 3
-
-        scoring : str
-        defines scoring type for RandomizedSearchCV, default of accuracy
-
-        """
-
-        # split data into training and validation sample
-        X_grid, X_val, y_grid, y_val = train_test_split(self.data_X, self.data_y, test_size=0.1, random_state=42)
-
-        # initialize model
-        lgb = LGBMClassifier(objective='binary', random_state=42, n_jobs=-1)
-
-        # initialize random search + cross-validation
-        lgbrand = RandomizedSearchCV(lgb, distributions, cv=cv, scoring=scoring, n_iter=n_iter, return_train_score=True)
-
-        # fit model
-        lgbrand.fit(X_grid, y_grid)
-
-        self.cv_results = lgbrand.cv_results_
-        self.model = lgbrand.best_estimator_
-
-        # derive scores
-        self.train_score = lgbrand.cv_results_['mean_train_score'][lgbrand.best_index_]
-        self.test_score = lgbrand.cv_results_['mean_test_score'][lgbrand.best_index_]
-        self.parameters = lgbrand.cv_results_['params'][lgbrand.best_index_]
-        self.val_score = self.model.score(X_val, y_val)
-        self.f1_score_val = f1_score(y_val, self.model.predict(X_val))
-
-        return self.val_score
-    
 #############################################################################################################
 
     def write_model(self, filename = "../models/lgb_model.pickle"):
@@ -814,9 +864,9 @@ class XGB():
 
 #############################################################################################################
 
-    def train_model(self, parameters = {'max_depth' : 5, 'lambda' : 100,
-                                        'learning_rate' : 0.25, 'max_leaves' : 30,
-                                        'min_child_weight' : 100, 'alpha' : 10, }, cv = 5):
+    def train_model(self, parameters = {'max_depth' : 5, 'lambda' : 10000,
+                                        'learning_rate' : 0.02, 'max_leaves' : 30,
+                                        'min_child_weight' : 100, 'alpha' : 10}, cv = 5):
         """
         Train XGBoost model. Most of the actual content was taken from the LGBM class
 
@@ -849,9 +899,9 @@ class XGB():
         self.test_score = np.max(cv_results['test_score'])
         self.parameters = parameters
         self.val_score = self.model.score(X_val, y_val)
-        self.f1_score_val = f1_score(y_val, self.model.predict(X_val))
+        self.f1_score_val = f1_score(y_val, self.model.predict(X_val), average="weighted")
 
-        return self.val_score
+        return self.f1_score_val
 
 #############################################################################################################
 
@@ -909,7 +959,7 @@ It also contains the code used in generating the mask.FIT file
 
 # testing the subregion overlay, and saving 
 #overlay = example_image.create_overlay(overlaytype="subregions", regions=[1,2,3,4,5,6,7,8,9])
-#example_image.write_image(filename="../example_images/overlay_example.png", overlay=overlay)
+#example_image.write_image(filename="../example_images/overlay_example.png", overlay=overlay, overlay_color="Oranges")
 
 # testing the remove outliers function
 #run_algo = example_image.remove_outliers()

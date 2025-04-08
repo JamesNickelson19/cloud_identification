@@ -6,6 +6,7 @@ Program to get training data from all selected images, and save it to a csv file
 
 import fits_processing as fp
 import os
+import time
 
 #############################################################################################################
 
@@ -22,14 +23,15 @@ def list_files(dir):
 # creating the csv file, and giving it the relevent headers
 
 print("Starting")
+start = time.time()
 
-outfile = open("../processed_data/training_features.csv", "w")
-outfile.write("subregion,moonalt,sunalt,moonphase,exp_time,srcdens,bkgmean,bkgmedian,bkgstd,cloudy\n")
+outfile = open("../processed_data/training_features_20.csv", "w")
+outfile.write("filename,subregion,moonalt,sunalt,moonphase,exp_time,srcdens,bkgmean,bkgmedian,bkgstd,cloudy\n")
 
 #############################################################################################################
 
 # getting the list of files
-files = list_files('../FIT_images')
+files = list_files('../FIT_images/20/')
 
 for file in files:
 
@@ -43,7 +45,7 @@ for file in files:
     #image.save_subregions() # this part only needs to be run when first generating subregions, which I've already done
         
     # extracting features
-    features = image.exctract_features(subregions)
+    features = image.extract_features(subregions)
 
     # writing to the file, making sure to place the bkg and srcdens features in the appropriate subregion
     for sub in features['Subregion']:
@@ -52,7 +54,7 @@ for file in files:
         index = sub-1
         
         # actually writing to the file
-        outfile.write(f"{sub},{float(features['moon_alt'])},{float(features['sun_alt'])},{float(features['moon_phase'])},{float(features['exp_time'])},\
+        outfile.write(f"{features["filename"]},{sub},{float(features['moon_alt'])},{float(features['sun_alt'])},{float(features['moon_phase'])},{float(features['exp_time'])},\
                       {float(features['srcdens'][index])},{float(features['bkgmean'][index])},{float(features['bkgmedian'][index])},{float(features['bkgstd'][index])},\n")
 
     # getting the filename for the png version of the image
@@ -61,8 +63,8 @@ for file in files:
     file = ".".join(split_file)
 
     # sending the png version to the correct folder
-    split_file = file.split("\\")
-    split_file[0] = "../png_images"
+    split_file = file.split("/")
+    split_file[1] = "png_images"
     filename = "/".join(split_file)
 
     # creating the subregion overlay, and saving the overlayed image as a png
@@ -72,4 +74,6 @@ for file in files:
 #############################################################################################################
 
 outfile.close()
-print("Done")
+
+time_taken = time.time() - start
+print(f"Done in {time_taken} seconds.")

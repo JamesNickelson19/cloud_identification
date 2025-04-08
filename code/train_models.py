@@ -10,30 +10,47 @@ import time
 
 #############################################################################################################
 
-start = time.time()
+# getting all the training data
+training_docs = ["../processed_data/training_features_20.csv", "../processed_data/training_features_40.csv", 
+                 "../processed_data/training_features_80.csv", "../processed_data/training_features_160.csv",
+                 "../processed_data/training_features_320.csv", "../processed_data/training_features_450.csv"]
 
+# just a list of the number of images in each .csv file
+model_num = ["20", "40", "80", "160", "320", "450"]
+
+# describing what type of test is being used
+test_type = "learning_rate_0.02"
+
+# setting up model
 lgbm_model = fp.LGBM()
 
-lgbm_model.retrieve_training_data("../processed_data/training_features.csv")
-load_data = time.time() - start
+i = 0
 
-lgbm_model.train_model()
-lgbm_model.write_model(filename="../models/lgb_80_images.pickle")
-train_lgbm = time.time() - start
+# iterating through training docs, training, and then saving the model with the correct name
+for trainer in training_docs:
+    lgbm_model.retrieve_training_data(trainer)
+    lgbm_model.train_model()
 
-print(f"It took: {load_data} seconds to load the training data, and {train_lgbm-load_data} seconds to train the lgbm model")
+    filename = f"../models/lgb_{model_num[i]}_images_{test_type}.pickle"
+
+    i+=1
+
+    lgbm_model.write_model(filename=filename)
 
 #############################################################################################################
 
-start = time.time()
+# same as with lgbm model
 
-xgb_model = fp.XGB()
+i = 0
 
-xgb_model.retrieve_training_data("../processed_data/training_features.csv")
-load_data = time.time() - start
+for trainer in training_docs:
+    xgb_model = fp.XGB()
 
-xgb_model.train_model()
-xgb_model.write_model(filename="../models/xgb_80_images.pickle")
-train_xgb = time.time() - start
+    xgb_model.retrieve_training_data(trainer)
+    xgb_model.train_model()
 
-print(f"It took: {load_data} seconds to load the training data, and {train_xgb-load_data} seconds to train the xgb model")
+    filename = f"../models/xgb_{model_num[i]}_images_{test_type}.pickle"
+
+    i+=1 
+
+    xgb_model.write_model(filename=filename)

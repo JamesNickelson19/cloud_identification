@@ -25,7 +25,7 @@ def list_files(dir):
 print("Starting")
 start = time.time()
 
-outfile = open("../processed_data/test_data.csv", "w")
+outfile = open("../processed_data/test_data_17_subs.csv", "w")
 outfile.write("filename,subregion,moonalt,sunalt,moonphase,exp_time,srcdens,bkgmean,bkgmedian,bkgstd,cloudy\n")
 
 #############################################################################################################
@@ -68,8 +68,8 @@ for file in files:
     filename = "/".join(split_file)
 
     # creating the subregion overlay, and saving the overlayed image as a png
-    overlay = image.create_overlay(overlaytype="subregions",  regions=[1,2,3,4,5,6,7,8,9])
-    image.write_image(filename=filename, overlay=overlay)
+    overlay = image.create_overlay(overlaytype="subregions",  regions=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]) #regions=[1,2,3,4,5,6,7,8,9] for 9 subregions, regions=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17] for 17
+    image.write_image(filename=filename, overlay=overlay) 
 
 #############################################################################################################
 
