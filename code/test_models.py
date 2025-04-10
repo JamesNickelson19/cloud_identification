@@ -173,6 +173,15 @@ print("Starting")
 #             "../models/xgb_80_images_alpha_1000.pickle", "../models/xgb_160_images_alpha_1000.pickle",
 #             "../models/xgb_320_images_alpha_1000.pickle", "../models/xgb_450_images_alpha_1000.pickle"]
 
+# testing alpha = 0.1
+#lgbm_paths = ["../models/lgb_20_images_alpha_0.1.pickle", "../models/lgb_40_images_alpha_0.1.pickle",
+#              "../models/lgb_80_images_alpha_0.1.pickle", "../models/lgb_160_images_alpha_0.1.pickle",
+#              "../models/lgb_320_images_alpha_0.1.pickle", "../models/lgb_450_images_alpha_0.1.pickle"]
+
+#xgb_paths = ["../models/xgb_20_images_alpha_0.1.pickle", "../models/xgb_40_images_alpha_0.1.pickle",
+#             "../models/xgb_80_images_alpha_0.1.pickle", "../models/xgb_160_images_alpha_0.1.pickle",
+#             "../models/xgb_320_images_alpha_0.1.pickle", "../models/xgb_450_images_alpha_0.1.pickle"]
+
 # testing lambda = 10000
 #lgbm_paths = ["../models/lgb_20_images_lambda_10000.pickle", "../models/lgb_40_images_lambda_10000.pickle",
 #              "../models/lgb_80_images_lambda_10000.pickle", "../models/lgb_160_images_lambda_10000.pickle",
@@ -181,6 +190,15 @@ print("Starting")
 #xgb_paths = ["../models/xgb_20_images_lambda_10000.pickle", "../models/xgb_40_images_lambda_10000.pickle",
 #             "../models/xgb_80_images_lambda_10000.pickle", "../models/xgb_160_images_lambda_10000.pickle",
 #             "../models/xgb_320_images_lambda_10000.pickle", "../models/xgb_450_images_lambda_10000.pickle"]
+
+# testing lambda = 1
+#lgbm_paths = ["../models/lgb_20_images_lambda_1.pickle", "../models/lgb_40_images_lambda_1.pickle",
+#              "../models/lgb_80_images_lambda_1.pickle", "../models/lgb_160_images_lambda_1.pickle",
+#              "../models/lgb_320_images_lambda_1.pickle", "../models/lgb_450_images_lambda_1.pickle"]
+
+#xgb_paths = ["../models/xgb_20_images_lambda_1.pickle", "../models/xgb_40_images_lambda_1.pickle",
+#             "../models/xgb_80_images_lambda_1.pickle", "../models/xgb_160_images_lambda_1.pickle",
+#             "../models/xgb_320_images_lambda_1.pickle", "../models/xgb_450_images_lambda_1.pickle"]
 
 #############################################################################################################
 
@@ -238,7 +256,7 @@ plt.grid()
 plt.legend()
 
 # setting the title and saving the figure. these are from the last tested models
-plt.title("Percentage Accuracy with learning_rate = 0.02")
-plt.savefig("../processed_data/results_graph_learning_rate_0.02.png")
+plt.title("Percentage Accuracy with lambda = 1")
+plt.savefig("../processed_data/results_graph_lambda_1.png")
 
 print("Done")

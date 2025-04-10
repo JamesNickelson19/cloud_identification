@@ -720,7 +720,7 @@ class LGBM():
 #############################################################################################################
 
     def train_model(self, parameters = {'max_depth': 5,'n_estimators': 500,
-                                        'learning_rate': 0.02,'num_leaves': 30,
+                                        'learning_rate': 0.25,'num_leaves': 30,
                                         'min_child_samples': 100,'reg_alpha': 10,
                                         'reg_lambda': 100}, cv = 5):
         """
@@ -864,8 +864,8 @@ class XGB():
 
 #############################################################################################################
 
-    def train_model(self, parameters = {'max_depth' : 5, 'lambda' : 10000,
-                                        'learning_rate' : 0.02, 'max_leaves' : 30,
+    def train_model(self, parameters = {'max_depth' : 5, 'lambda' : 100,
+                                        'learning_rate' : 0.25, 'max_leaves' : 30,
                                         'min_child_weight' : 100, 'alpha' : 10}, cv = 5):
         """
         Train XGBoost model. Most of the actual content was taken from the LGBM class
